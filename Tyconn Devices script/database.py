@@ -1,7 +1,7 @@
 import sqlite3
 
 def crea_database():
-    conn = sqlite3.connect('tycoon_devices.db')  
+    conn = sqlite3.connect('devices_tycoon.db')  
     cursor = conn.cursor()
     
     # Creazione della tabella per l'azienda

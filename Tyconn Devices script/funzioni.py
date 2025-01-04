@@ -21,7 +21,7 @@ def ControllaInput(s,list,value_type):
             print('Valore non valido')
 
 def carica_azienda():
-    conn = sqlite3.connect('tycoon_devices.db')
+    conn = sqlite3.connect('devices_tycoon.db')
     cursor = conn.cursor()
     
     cursor.execute("SELECT * FROM azienda LIMIT 1")
@@ -34,7 +34,7 @@ def carica_azienda():
         return None  # Se non esiste, ritorna None
 
 def aggiungi_azienda(nome, money, studio_points):
-    conn = sqlite3.connect('tycoon_devices.db')
+    conn = sqlite3.connect('devices_tycoon.db')
     cursor = conn.cursor()
     
     cursor.execute("INSERT INTO azienda (nome, money, studio_points) VALUES (?, ?, ?)", (nome, money, studio_points))
@@ -43,7 +43,7 @@ def aggiungi_azienda(nome, money, studio_points):
 
 
 def carica_dispositivi():
-    conn = sqlite3.connect('tycoon_devices.db')
+    conn = sqlite3.connect('devices_tycoon.db')
     cursor = conn.cursor()
     
     cursor.execute("SELECT * FROM dispositivi")
@@ -63,7 +63,7 @@ def aggiungi_dispositivo(conn, nome, caratteristiche, funzionalita):
 
 def AggiungiPhone(id, char, func):
     name = input('Inserisci il nome del dispositivo -->| ')
-    conn = sqlite3.connect('tycoon_devices.db')  # Crea la connessione una sola volta
+    conn = sqlite3.connect('devices_tycoon.db')  # Crea la connessione una sola volta
     aggiungi_dispositivo(conn, name, char, func)
     conn.close()  # Chiudi la connessione al termine
     print(f"Dispositivo {name} aggiunto con successo!")
