@@ -1,10 +1,10 @@
 import sqlite3
 
-# Creazione del database
+# Funzione per creare il database
 def crea_database():
-    conn = sqlite3.connect('devices_tycoon.db')  
+    conn = sqlite3.connect('devices_tycoon.db')
     cursor = conn.cursor()
-    
+
     # Creazione della tabella per l'azienda
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS azienda (
@@ -42,7 +42,7 @@ def crea_database():
         )
     ''')
 
-    # Creazione della tabella per le max specifiche
+    # Creazione della tabella per le specifiche massime
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS max_specifiche (
             categoria TEXT,
@@ -51,11 +51,28 @@ def crea_database():
         )
     ''')
 
-    # Creazione della tabella per le max funzionalità
+    # Creazione della tabella per le funzionalità massime
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS max_funzionalita (
             funzionalita TEXT,
             costo INTEGER
+        )
+    ''')
+
+    # Creazione della tabella per le specifiche possedute
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS specifiche_possedute (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            categoria TEXT,
+            specifica TEXT
+        )
+    ''')
+
+    # Creazione della tabella per le funzionalità possedute
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS funzioni_possedute (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            funzionalita TEXT
         )
     ''')
 

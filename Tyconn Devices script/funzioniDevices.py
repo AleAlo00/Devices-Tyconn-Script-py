@@ -1,6 +1,7 @@
-#Funzioni
 import sqlite3
 
+
+# Funzione per controllare l'input
 def ControllaInput(s,list,value_type):
     corretto = False
     while not corretto:
@@ -20,28 +21,37 @@ def ControllaInput(s,list,value_type):
         except:
             print("Valore non valido")
 
-def carica_azienda():
-    conn = sqlite3.connect("devices_tycoon.db")
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT * FROM azienda LIMIT 1")
-    azienda = cursor.fetchone()
-    conn.close()
-    
-    if azienda:
-        return azienda  # Restituisce i dati aziendali (id, nome, money, studio_points)
-    else:
-        return None  # Se non esiste, ritorna None
 
-def aggiungi_azienda(nome, money, studio_points):
-    conn = sqlite3.connect("devices_tycoon.db")
-    cursor = conn.cursor()
-    
-    cursor.execute("INSERT INTO azienda (nome, money, studio_points) VALUES (?, ?, ?)", (nome, money, studio_points))
-    conn.commit()
-    conn.close()
+# Calcola l'incremento degli studio points
+def calcola_incremento_studio_points(specifiche_scelte, funzionalita_scelte, livelli_specifiche):
+    livelli_specifiche = {
+    "RAM": {"4GB": 1, "6GB": 2, "8GB": 3, "10GB": 4},
+    "CPU": {"A12": 1, "A13": 2, "A14": 3, "A15": 4},
+    "GPU": {"Mali-G76": 1, "Mali-G77": 2, "Mali-G78": 3, "Mali-G79": 4},
+    "Storage": {"64GB": 1, "128GB": 2, "256GB": 3, "512GB": 4},
+}
+    incremento_totale = 0
+
+    # Calcola i punti per le specifiche
+    print("\n--- Debug: Calcolo incremento specifiche ---")
+    for categoria, specifica in specifiche_scelte.items():
+        print(f"Categoria: {categoria}, Specifica: {specifica}")  # Debug: visualizza il valore di 'specifica'
+        livello = livelli_specifiche.get(categoria, {}).get(specifica, 1)
+        print(f"Livello trovato: {livello}")  # Debug: visualizza il livello calcolato
+        incremento_totale += livello
+
+    # Calcola i punti per le funzionalità
+    print("\n--- Debug: Calcolo incremento funzionalità ---")
+    for funzionalita in funzionalita_scelte:
+        print(f"Funzionalità: {funzionalita}, Incremento: 1")
+    incremento_totale += len(funzionalita_scelte)
+
+    print(f"\n--- Debug: Incremento Totale: {incremento_totale} ---")
+    return incremento_totale
 
 
+
+# Caricamento dei dispositivi
 def carica_dispositivi():
     conn = sqlite3.connect("devices_tycoon.db")
     cursor = conn.cursor()
@@ -51,14 +61,6 @@ def carica_dispositivi():
     conn.close()
     
     return dispositivi
-
-
-def VisualizzaAzienda(name,money,studio_points):
-    print(f"""\nAzienda
-    Name: {name}
-    Money: {money}
-    Studio Points: {studio_points}
-    """)
 
 
 # Aggiunta di un dispositivo con specifiche e funzionalità
@@ -83,7 +85,7 @@ def aggiungi_dispositivo(conn, nome, specifiche, funzionalita):
 
 
 # Gestione del flusso per aggiungere un telefono
-def AggiungiPhone(id, char, func,studio_points):
+def AggiungiPhone(id, char, func, studio_points, livelli_specifiche):
     name = input("\nInserisci il nome del dispositivo -->| ")
     
     specifiche_scelte = {}
@@ -94,7 +96,9 @@ def AggiungiPhone(id, char, func,studio_points):
         
         indice = ControllaInput(f"Scegli un numero per {chiave} -->| ", list(range(1, len(valori) + 1)), "int")
         specifiche_scelte[chiave] = valori[indice - 1]
-    
+
+    print(f"\nSpecifiche scelte: {specifiche_scelte}")
+
     funzionalita_scelte = []
     print(f"\nFunzionalità disponibili:")
     for i, funz in enumerate(func, start=1):
@@ -113,18 +117,26 @@ def AggiungiPhone(id, char, func,studio_points):
         except ValueError:
             print("Errore nell'input. Inserisci numeri validi separati da spazi.")
     
+    print(f"\nFunzionalità scelte: {funzionalita_scelte}")
+
     conn = sqlite3.connect("devices_tycoon.db")
     aggiungi_dispositivo(conn, name, specifiche_scelte, funzionalita_scelte)
 
-    studio_points += 10
+    # Calcola l'incremento dinamico degli studio points
+    incremento = calcola_incremento_studio_points(specifiche_scelte, funzionalita_scelte, livelli_specifiche)
+    studio_points += incremento
+
+    # Aggiorna i punti studio nel database
     cursor = conn.cursor()
-# Aggiorna i punti studio nella tabella azienda
     cursor.execute("UPDATE azienda SET studio_points = ? WHERE id = ?", (studio_points, id))
     conn.commit()
     conn.close()
     
     print(f"Dispositivo {name} aggiunto con successo!")
-    return id + 1,studio_points
+    print(f"Hai guadagnato {incremento} studio points! Totale attuale: {studio_points}")
+    return id + 1, studio_points
+
+
 
 
 # Visualizzazione dettagliata dei dispositivi
@@ -156,78 +168,16 @@ def VisualizzaDevices():
     
     conn.close()
 
-def carica_max_specifiche():
-    maxSpecifiche = {
-        "RAM": {"4GB": 10, "6GB": 20, "8GB": 30},
-        "CPU": {"A12": 10, "A13": 20, "A14": 30},
-        "GPU": {"Mali-G76": 10, "Mali-G77": 20, "Mali-G78": 30},
-        "Storage": {"64GB": 10, "128GB": 20, "256GB": 30},
-    }
-    
-    conn = sqlite3.connect('devices_tycoon.db')  
+# Funzione per eliminare un dispositivo
+def elimina_dispositivo(dispositivo_id):
+    conn = sqlite3.connect("devices_tycoon.db")
     cursor = conn.cursor()
 
-    for categoria, opzioni in maxSpecifiche.items():
-        for specifica, costo in opzioni.items():
-            cursor.execute('''
-                INSERT INTO max_specifiche (categoria, specifica, costo)
-                VALUES (?, ?, ?)
-            ''', (categoria, specifica, costo))
-    
+    # Elimina il dispositivo e i suoi dati correlati
+    cursor.execute("DELETE FROM dispositivi WHERE id = ?", (dispositivo_id,))
+    cursor.execute("DELETE FROM specifiche_dispositivo WHERE id_dispositivo = ?", (dispositivo_id,))
+    cursor.execute("DELETE FROM funzionalita_dispositivo WHERE id_dispositivo = ?", (dispositivo_id,))
+
     conn.commit()
     conn.close()
-
-def carica_max_funzionalita():
-    maxFunzionalita = {
-        "5G": 10,
-        "Touch ID": 20,
-        "NFC": 30,
-    }
-    
-    conn = sqlite3.connect('devices_tycoon.db')  
-    cursor = conn.cursor()
-
-    for funzionalita, costo in maxFunzionalita.items():
-        cursor.execute('''
-            INSERT INTO max_funzionalita (funzionalita, costo)
-            VALUES (?, ?)
-        ''', (funzionalita, costo))
-    
-    conn.commit()
-    conn.close()
-
-
-
-def CompraSpecifiche(maxSpecifiche, specifc, studio_points):
-
-    categorie = list(maxSpecifiche.keys())
-    print("\nSpecifiche disponibili:")
-    for i, categoria in enumerate(categorie, start=1):
-        print(f"[{i}] {categoria}")
-        for j, (specifica, costo) in enumerate(maxSpecifiche[categoria].items(), start=1):
-            print(f"    [{j}] {specifica} - {costo} studio_points")
-
-    # Seleziona categoria
-    print(f"\nHai {studio_points} studio_points.")
-    scelta_categoria = ControllaInput("\nScegli una categoria (numero) -->| ", list(range(1, len(categorie) + 1)), "int")
-    categoria = categorie[scelta_categoria - 1]
-
-    # Seleziona opzione
-    opzioni = list(maxSpecifiche[categoria].keys())
-    scelta_opzione = ControllaInput(f"Scegli un'opzione per {categoria} (numero) -->| ", list(range(1, len(opzioni) + 1)), "int")
-    specifica = opzioni[scelta_opzione - 1]
-    costo = maxSpecifiche[categoria][specifica]
-
-    # Verifica e acquista
-    if studio_points >= costo:
-        studio_points -= costo
-        specifc[categoria].append(specifica)
-        del maxSpecifiche[categoria][specifica]  
-        print(f"Hai comprato {specifica} per {categoria} al costo di {costo} studio_points!")
-        if not maxSpecifiche[categoria]:
-            del maxSpecifiche[categoria]
-
-    else:
-        print("Non hai abbastanza punti studio.")
-    
-    return specifc, studio_points
+    print(f"Dispositivo con ID {dispositivo_id} eliminato con successo.")
