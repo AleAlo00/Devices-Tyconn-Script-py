@@ -16,10 +16,15 @@ def carica_max_specifiche():
     # Se la tabella è vuota, inserisci i dati predefiniti
     if count == 0:
         defaultSpecifiche = {
-            "RAM": {"6GB": 10, "8GB": 20, "10GB": 30},
-            "CPU": {"A13": 10, "A14": 20, "A15": 30},
-            "GPU": {"Mali-G77": 10, "Mali-G78": 20, "Mali-G79": 30},
-            "Storage": {"128GB": 10, "256GB": 20, "512GB": 30},
+            "RAM": {"6GB": 10, "8GB": 20, "10GB": 30, "12GB": 40, "16GB": 50},
+            "CPU": {"A13": 10, "A14": 20, "A15": 30, "A16": 40, "A17": 50},
+            "GPU": {"Mali-G77": 10, "Mali-G78": 20, "Mali-G79": 30, "Mali-G80": 40, "Mali-G81": 50},
+            "Storage": {"128GB": 10, "256GB": 20, "512GB": 30, "1TB": 40, "2TB": 50},
+            "Camera": {"16MP": 10, "20MP": 20, "24MP": 30, "32MP": 40, "48MP": 50},
+            "Display": {"OLED": 10, "AMOLED": 20, "IPS": 30, "TFT": 40, "LCD": 50},
+            "Battery": {"3500mAh": 10, "4000mAh": 20, "4500mAh": 30, "5000mAh": 40, "6000mAh": 50},
+            "OS": {"iOS": 100,},
+            "Number of Cameras": {"3": 50, "4": 100,},
         }
         for categoria, opzioni in defaultSpecifiche.items():
             for specifica, costo in opzioni.items():
@@ -59,6 +64,8 @@ def carica_max_funzionalita():
             "5G": 10,
             "Touch ID": 20,
             "NFC": 30,
+            "Wireless Charging": 40,
+            "Water Resistance": 50,
         }
         for funzionalita, costo in defaultFunzionalita.items():
             cursor.execute('''
@@ -87,6 +94,11 @@ def carica_specifiche_possedute():
         "CPU": ["A12"],
         "GPU": ["Mali-G76"],
         "Storage": ["64GB"],
+        "Camera": ["12MP"],
+        "Display": ["LCD"],
+        "Battery": ["3000mAh"],
+        "OS": ["Android"],
+        "Number of Cameras": ["2"],
     }
 
     # Carica dal database
@@ -109,7 +121,7 @@ def carica_funzioni_possedute():
     cursor = conn.cursor()
 
     # Valori predefiniti
-    funzioni_possedute = ["Face ID"]
+    funzioni_possedute = ["Face ID", "Bluetooth", "WiFi"]
 
     # Carica dal database
     cursor.execute("SELECT funzionalita FROM funzioni_possedute")

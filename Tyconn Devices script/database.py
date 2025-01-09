@@ -19,7 +19,9 @@ def crea_database():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS dispositivi (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT
+            nome TEXT,
+            id_azienda INTEGER,  -- Associa ogni dispositivo a una specifica azienda
+            FOREIGN KEY (id_azienda) REFERENCES azienda(id)
         )
     ''')
 
@@ -29,7 +31,9 @@ def crea_database():
             id_dispositivo INTEGER,
             chiave TEXT,
             valore TEXT,
-            FOREIGN KEY (id_dispositivo) REFERENCES dispositivi (id)
+            id_azienda INTEGER,  -- Associa le specifiche al dispositivo dell'azienda
+            FOREIGN KEY (id_dispositivo) REFERENCES dispositivi(id),
+            FOREIGN KEY (id_azienda) REFERENCES azienda(id)
         )
     ''')
 
@@ -38,7 +42,9 @@ def crea_database():
         CREATE TABLE IF NOT EXISTS funzionalita_dispositivo (
             id_dispositivo INTEGER,
             funzionalita TEXT,
-            FOREIGN KEY (id_dispositivo) REFERENCES dispositivi (id)
+            id_azienda INTEGER,  -- Associa le funzionalità al dispositivo dell'azienda
+            FOREIGN KEY (id_dispositivo) REFERENCES dispositivi(id),
+            FOREIGN KEY (id_azienda) REFERENCES azienda(id)
         )
     ''')
 
